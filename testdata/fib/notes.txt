@@ -1,0 +1,71 @@
+# Build the base image.
+docker build --tag=mapreduced/base --rm=true .
+
+# Build the mapper image.
+docker build --tag=mapreduced/map --rm=true map/
+
+# Debug the mapper.
+docker run --env="ITEM=1" --entrypoint="/bin/bash" -it --rm mapreduced/map
+
+# Run the mapper.
+for ITEM in `seq 1 14`;
+do
+  docker run --name=mapreduced-out$ITEM --env="ITEM=$ITEM" mapreduced/map
+  docker cp mapreduced-out$ITEM:/usr/testguest/output reduce/$ITEM.out
+  docker rm --force=true mapreduced-out$ITEM
+done
+
+# Build the reducer image.
+docker build --tag=mapreduced/reduce --rm=true reduce/
+
+# Debug the reducer.
+docker run --env="ITEMS=14" --entrypoint="/bin/bash" -it --rm mapreduced/reduce
+
+# Run the reducer.
+docker run --name=mapreduced-out --env="ITEMS=14" mapreduced/reduce
+docker cp mapreduced-out:/usr/testhost/output reduce/output
+docker rm --force=true mapreduced-out
+
+# Clean up images.
+docker rmi --force=false mapreduced/base mapreduced/map mapreduced/reduce
+
+# Clean up output.
+rm reduce/output
+rm reduce/*.out
+
+
+# Docker arguments for running the container
+# --net=none
+# --memory=100m
+# --memory-swap=0
+# --cpu-quota=100000  # 1 CPU core
+# --cpuset-cpus=0
+# --ulimit
+
+POST /jobs
+- header X-Callback-URL: called with job info
+- header X-Job-JSON:
+{
+  "templateId": template-id,
+  "templateUrl": template-zip-url,
+  "mapper": {
+    "ulimits": { ... }
+  },
+  "reducer": {
+    "ulimits": { ... }
+  }
+}
+- body: input
+- response body: { "id": job-id }
+- response body: output
+
+Everything else is diagnostics
+
+GET /template/:id
+- response body: JSON of template status
+
+DELETE /template/:id
+- response body: JSON of template status
+
+GET /job/:id
+- response body: JSON of job status

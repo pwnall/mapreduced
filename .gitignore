@@ -1,0 +1,11 @@
+# OSX.
+.DS_Store
+
+# Vim.
+*.sw*
+
+# Go output.
+mapreduced
+
+# Testing temporary files.
+test_tmp/

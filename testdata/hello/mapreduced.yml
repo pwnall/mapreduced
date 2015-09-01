@@ -1,0 +1,18 @@
+---
+items: 3
+mapper:
+  input: /usr/mrd/map-input
+  output: /usr/mrd/map-output
+  chdir: /usr/mrd
+  env: ITEM
+  cmd:
+    - /bin/sh
+    - /usr/mrd/mapper.sh
+reducer:
+  input: /usr/mrd/
+  output: /usr/mrd/reduce-output
+  chdir: /
+  env: ITEMS
+  cmd:
+    - /bin/sh
+    - /usr/mrd/reducer.sh

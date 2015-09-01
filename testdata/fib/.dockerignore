@@ -1,0 +1,9 @@
+# The base dockerfile.
+Dockerfile
+
+# The inputs to the map/reduce stages.
+map/
+reduce/
+
+# Notes from building the test case.
+notes.txt

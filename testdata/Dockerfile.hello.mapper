@@ -1,0 +1,4 @@
+FROM mapreduced/hello_base
+COPY input /usr/mrd/map-input
+WORKDIR /usr/mrd
+ENTRYPOINT ["/bin/sh","/usr/mrd/mapper.sh"]
